@@ -5,7 +5,7 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from config import Config
 from resources.movie import MovieListResource, Movieinfo
-from resources.review import ReviewListResource
+from resources.review import ReviewResource
 
 #  로그 아웃 관련된 임포트문. 
 from resources.user import UserLoginResource, UserLogoutResource, UserRegisterResource, jwt_blocklist
@@ -34,13 +34,13 @@ def check_if_token_is_revoked(jwt_header,jwt_payload):
 
 api.add_resource(UserRegisterResource ,'/user/register')
 api.add_resource(UserLogoutResource ,'/user/logout')
-api.add_resource( UserLoginResource,'/user/login')
+api.add_resource(UserLoginResource,'/user/login')
 
 api.add_resource( MovieListResource,'/movie')
 api.add_resource( Movieinfo , '/movie/<int:movie_id>')
 
 
-api.add_resource( ReviewListResource , '/review') 
+api.add_resource( ReviewResource , '/review') 
 
 if __name__ == '__main__':
     app.run()

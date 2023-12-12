@@ -48,7 +48,7 @@ class UserRegisterResource(Resource):
                         values(%s,%s,%s,%s);'''
             
             record = (data['email'] ,password, 
-                      data['nickname'] , data['nickname']) 
+                      data['nickname'] , data['gender']) 
             
 
             cursor = connection.cursor()
@@ -122,11 +122,6 @@ class UserLoginResource(Resource):
         # 회원가입할때 입력했던, 암호화된 비밀번호 DB에있음
         # result_list에 들어있고
         # 리스트의 첫번째 데이터에 들어있다
-        result_list[0]['password']
-        print()
-        print(data['password'])
-        print(result_list[0]['password'])
-        print()
         check = check_password(data['password'] , result_list[0]['password'] ) 
 
         # #비밀번호가 틀렸을떄
@@ -136,7 +131,7 @@ class UserLoginResource(Resource):
         # jwt 토큰을 만들어서 , 클라이언트에게 응답한다.
         access_token = create_access_token(result_list[0]['id'])
         #access_token = create_access_token(result_list[0]['id'], expires_delta = datetime.timedelta(minutes=2))
-        return {"result" : "success", "access_token" :access_token },205
+        return {"result" : "success", "accessToken" :access_token },205
     
 jwt_blocklist = set()
 

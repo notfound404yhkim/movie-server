@@ -4,7 +4,7 @@ from flask_restful import Resource
 from mysql_connection import get_connection
 from mysql.connector import Error
 
-class ReviewListResource(Resource):
+class ReviewResource(Resource):
     
     @jwt_required()
     def post(self):
@@ -55,24 +55,27 @@ class ReviewListResource(Resource):
 
         return {"result" : "success"},200
     
-    #내 리뷰 보기 
-    @jwt_required()
+    # 특정 영화에 대한 리뷰 
+    @jwt_required(optional= True)
     def get(self) :
         
+        movieId = request.args.get('movieId')
+        offset = request.args.get('offset')
+        limit = request.args.get('limit')
         user_id = get_jwt_identity()
-
-        print(user_id)
 
         try :
             connection = get_connection()
 
-            query = '''select m.title,r.rating,r.content
+            query = '''select u.nickname, r.rating,r.content
                         from review r
-                        join movie m
-                        on r.movieId = m.id
-                        where r.userId = %s
-                        order  by r.createdAt desc;'''
-            record = (user_id , )
+                        join user u
+                        on u.id = r.userId
+                        where r.movieId = %s
+                        order by r.updatedAt desc
+                        limit '''+ str(offset) +''', '''+ str(limit) +'''    ;'''
+            
+            record = (movieId ,    )
 
             cursor = connection.cursor(dictionary=True)
             cursor.execute(query, record)
