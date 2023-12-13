@@ -52,6 +52,7 @@ class MovieResource(Resource) :
 
 class MovieListResource(Resource) :
 
+
     @jwt_required()
     def get(self) :
 
@@ -75,6 +76,8 @@ class MovieListResource(Resource) :
                     order by '''+order+''' desc
                     limit '''+offset+''', '''+limit+''';'''
             
+            #avgRating ,reviewCnt
+
             record = (user_id , )
 
             cursor = connection.cursor(dictionary=True)
@@ -91,6 +94,50 @@ class MovieListResource(Resource) :
         
         print(result_list)
 
+        i = 0
+        for row in result_list :
+            result_list[i]['avgRating'] = float( row['avgRating'] )
+            i = i + 1
+
+        return {'result' : 'success',
+                'items' : result_list,
+                'count' : len(result_list)}
+    
+
+
+class MovieSearchResource(Resource):
+    
+    @jwt_required
+    def get(self):
+        
+        keyword = request.args.get('keyword')
+        offset = request.args.get('offset')
+        limit = request.args.get('limit')
+        user_id = get_jwt_identity()
+
+        try:
+            connection = get_connection
+            query =  '''  select m.id,m.title, count(r.id) as reviewCnt, ifnull(avg(r.rating),0) as avgRating
+                            from movie m
+                            left join review r
+                            on m.id = r.movieId
+                            where m.title like '%'''+keyword+'''%' or summary like '%'''+keyword+'''%'
+                            group by m.id
+                            limit '''+offset+''', '''+limit+''';'''
+            
+            
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(query,)
+            result_list = cursor.fetchall()
+            cursor.close()
+            connection.close()
+
+        except Error as e:
+            print(e)
+            cursor.close()
+            connection.close()
+            return{'error ' : str(e)},500
+        
         i = 0
         for row in result_list :
             result_list[i]['avgRating'] = float( row['avgRating'] )

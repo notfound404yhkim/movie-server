@@ -4,7 +4,7 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from config import Config
-from resources.movie import MovieListResource, MovieResource
+from resources.movie import MovieListResource, MovieResource, MovieSearchResource
 from resources.review import ReviewResource
 
 #  로그 아웃 관련된 임포트문. 
@@ -38,6 +38,7 @@ api.add_resource(UserLoginResource,'/user/login')
 api.add_resource( ReviewResource , '/review') 
 api.add_resource( MovieResource , '/movie/<int:movie_id>')
 api.add_resource( MovieListResource,'/movie')
+api.add_resource( MovieSearchResource ,'/movie/search')
 
 if __name__ == '__main__':
     app.run()
