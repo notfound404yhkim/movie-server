@@ -105,30 +105,31 @@ class MovieListResource(Resource) :
     
 
 
-class MovieSearchResource(Resource):
-    
-    @jwt_required
+class MovieSearchResource(Resource) :
+    @jwt_required()
     def get(self):
-        
+
         keyword = request.args.get('keyword')
         offset = request.args.get('offset')
         limit = request.args.get('limit')
-        user_id = get_jwt_identity()
 
-        try:
-            connection = get_connection
-            query =  '''  select m.id,m.title, count(r.id) as reviewCnt, ifnull(avg(r.rating),0) as avgRating
-                            from movie m
-                            left join review r
-                            on m.id = r.movieId
-                            where m.title like '%'''+keyword+'''%' or summary like '%'''+keyword+'''%'
-                            group by m.id
-                            limit '''+offset+''', '''+limit+''';'''
-            
+        try :
+            connection = get_connection()
+            query = '''select m.id , m.title , m.summary,
+                    count(r.id) reviewCnt , 
+                    ifnull(avg(r.rating) , 0) avgRating
+                    from movie m 
+                    left join review r
+                    on m.id = r.movieId
+                    where m.title like '%'''+keyword+'''%' or m.summary like '%'''+keyword+'''%'
+                    group by m.id
+                    limit '''+offset+''', '''+limit+''' ;'''
             
             cursor = connection.cursor(dictionary=True)
-            cursor.execute(query,)
+            cursor.execute(query)
+
             result_list = cursor.fetchall()
+
             cursor.close()
             connection.close()
 
@@ -136,7 +137,7 @@ class MovieSearchResource(Resource):
             print(e)
             cursor.close()
             connection.close()
-            return{'error ' : str(e)},500
+            return {'error' : str(e)}, 500
         
         i = 0
         for row in result_list :
